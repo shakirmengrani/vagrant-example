@@ -1,0 +1,24 @@
+- hosts: all
+  become: true
+  tasks:
+    - name: "Add mongodb key"
+      apt_key:
+        url: "https://www.mongodb.org/static/pgp/server-6.0.asc"
+    - name: "Add mongodb repo"
+      apt_repository:
+        repo: deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/6.0 multiverse
+    - name: "Install mongodb"
+      apt:
+        name:
+          - mongodb-org
+        update_cache: true
+    - name: "bind to all IFaces"
+      lineinfile:
+        path: /etc/mongod.conf
+        search_string: 'bindIp'
+        line: "  bindIp: 0.0.0.0"
+    - name: "Enable Service"
+      systemd:
+        name: "mongod.service"
+        state: "started"
+        enabled: true
